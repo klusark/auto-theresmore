@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=theresmoregame.com
-// @downloadURL  https://raw.githubusercontent.com/klusark/auto-theresmore/main/script.js
 // @grant        none
 // ==/UserScript==
 
@@ -88,8 +87,8 @@
             });
             getResources();
             updateTooltip(content);
-            if (node.children[0].children[0].childElementCount == 0) {
-                observer2.observe(node.children[0].children[0], {subtree: false, childList : true});
+            if (content.children[0].childElementCount == 0) {
+                observer2.observe(content.children[0], {subtree: false, childList : true});
             }
         }
     });
@@ -118,13 +117,17 @@
     document.body.insertAdjacentHTML("beforeend", html)
 
     setTimeout(function() {
-        var buttons = document.getElementsByTagName("button")
+        var container = document.getElementsByClassName("tab-container")[0]
+        var buttons = container.getElementsByTagName("button")
         var autobuy = document.getElementById("autobuy")
         autobuy.innerHTML = ""
         for (var i = 0; i < buttons.length; ++i) {
             var name = buttons[i].childNodes[0].textContent
             if (name == "") {
                 continue
+            }
+            if (buttons[i].classList.contains("btn-cap")) {
+                continue;
             }
             var option = document.createElement("option");
             option.text = name;
@@ -140,7 +143,8 @@
             return
         }
 
-        var buttons = document.getElementsByTagName("button")
+        var container = document.getElementsByClassName("tab-container")[0]
+        var buttons = container.getElementsByTagName("button")
         for (var i = 0; i < buttons.length; ++i) {
             var name = buttons[i].childNodes[0].textContent
             for (var j = 0; j < autobuy.selectedOptions.length; ++j) {
@@ -152,17 +156,11 @@
                 }
                 //console.log("Would click", name)
                 buttons[i].click();
+                break;
             }
         }
 
     }, 1000);
-
-
-
-
-
-
-
 
 
 
