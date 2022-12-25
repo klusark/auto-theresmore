@@ -6,6 +6,7 @@
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=theresmoregame.com
+// @downloadURL  https://raw.githubusercontent.com/klusark/auto-theresmore/main/script.js
 // @grant        none
 // ==/UserScript==
 
