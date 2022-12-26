@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -43,22 +43,27 @@
         for (var i = 0; i < rnodes.childElementCount; ++i) {
             var row = rnodes.children[i]
             var resource = row.children[0].children[0].innerHTML
-            var rate = parseFloat(row.children[2].innerHTML)
             if (! (resource in resources)) {
                 resources[resource] = {}
             }
+            var rate = parseFloat(row.children[2].innerHTML)
+            var current = row.children[1].childNodes[0].textContent
+            var limit = row.children[1].childNodes[2].textContent
+
             resources[resource].rate = rate
+            resources[resource].current = parseInt(current.replaceAll(",",""))
+            resources[resource].limit = parseInt(limit.replaceAll(",",""))
         }
     }
 
     function updateTooltip(node) {
-        console.log("Tooltip Update")
+        //console.log("Tooltip Update")
 
         try {
-        if (node == undefined) {
-            node = document.getElementsByClassName("tippy-content")[0]
-        }
-        var rtab = node.children[0].children[2].children[0].children[0]
+            if (node == undefined) {
+                node = document.getElementsByClassName("tippy-content")[0]
+            }
+            var rtab = node.children[0].children[2].children[0].children[0]
         } catch (e) {
             return
         }
@@ -69,11 +74,15 @@
             var split = neededhtml.split(" ")
             var needed = parseInt(split[0].replaceAll(",",""))
 
-            if (!resource in resources) {
+            if (!(resource in resources)) {
                 continue
             }
 
             var val = Math.round(needed / resources[resource].rate)
+
+            if (needed > resources[resource].limit) {
+                val = "X"
+            }
 
             row.children[0].innerHTML = resource + " ["+val+"]"
         }
