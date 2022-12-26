@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -106,8 +106,8 @@
             });
             getResources();
             updateTooltip(content);
-            if (node.children[0].children[0].childElementCount == 0) {
-                observer2.observe(node.children[0].children[0], {subtree: false, childList : true});
+            if (content.children[0].childElementCount == 0) {
+                observer2.observe(content.children[0], {subtree: false, childList : true});
             }
         }
     });
