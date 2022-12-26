@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -204,6 +204,7 @@
 
             container = document.getElementsByClassName("tab-container")[0]
             buttons = container.getElementsByTagName("button")
+            var done = false
             for (i = 0; i < buttons.length; ++i) {
                 name = buttons[i].childNodes[0].textContent
                 for (j = 0; j < autobuy.selectedOptions.length; ++j) {
@@ -214,11 +215,16 @@
                         continue;
                     }
                     if (buttons[i].classList.contains("btn-progress")) {
+                        done = true
                         break;
                     }
                     //console.log("Would click", name)
                     buttons[i].click();
+                    done = true
                     break;
+                }
+                if (done) {
+                    break
                 }
             }
         } else if (currentTab == "Research") {
@@ -226,6 +232,8 @@
             if (!enabled.checked) {
                 return
             }
+
+            var noAuto = ["A moonlight night"]
 
             container = document.getElementsByClassName("tab-container")[0]
             buttons = container.getElementsByTagName("button")
@@ -235,6 +243,11 @@
                 }
                 if (buttons[i].classList.contains("btn-progress")) {
                     break;
+                }
+                name = buttons[i].childNodes[0].textContent
+
+                if (noAuto.includes(name)) {
+                    continue;
                 }
                 //console.log("Would click", name)
                 buttons[i].click();
