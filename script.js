@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -142,11 +142,15 @@
 
     document.body.insertAdjacentHTML("beforeend", html)
 
-    setTimeout(function() {
+    function updateBuildings() {
+        if (getCurrentTab() != "Build") {
+            return
+        }
         var container = document.getElementsByClassName("tab-container")[0]
         var buttons = container.getElementsByTagName("button")
         var autobuy = document.getElementById("autobuy")
-        autobuy.innerHTML = ""
+        var previousButton = ""
+        //autobuy.innerHTML = ""
         for (var i = 0; i < buttons.length; ++i) {
             var name = buttons[i].childNodes[0].textContent
             if (name == "") {
@@ -155,11 +159,30 @@
             if (buttons[i].classList.contains("btn-cap")) {
                 continue;
             }
+            var found = false
+            var prevElementidx = -1
+            for (var j = 0; j < autobuy.options.length; ++j) {
+                if (name == autobuy.options[j].innerText) {
+                    found = true
+                    break
+                }
+                if (previousButton == autobuy.options[j].innerText) {
+                    prevElementidx = j
+                }
+            }
+            previousButton = name
+
+            if (found) {
+                continue
+            }
             var option = document.createElement("option");
             option.text = name;
-            autobuy.add(option);
+            autobuy.add(option, prevElementidx+1);
         }
-    }, 100);
+    }
+
+    setTimeout(updateBuildings, 50);
+    setInterval(updateBuildings, 1000);
 
     function processAuto(currentTab) {
         var enabled, autobuy, container, buttons, i, j, name;
