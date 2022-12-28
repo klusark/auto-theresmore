@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      1
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -14,6 +14,12 @@
     var resources = {
 
     }
+
+    var lastMove = 0
+
+    document.addEventListener("mousemove", function() {
+        lastMove = new Date().getTime()
+    });
 
     function getCurrentTab() {
         var tabs = document.getElementById("main-tabs")
@@ -141,6 +147,9 @@
         <label for="autobuyenabled">Auto Building</label>
         <input type="checkbox" id="autobuyenabled" >
         <br>
+        <label for="autobuynewenabled">Buy New Building</label>
+        <input type="checkbox" id="autobuynewenabled" >
+        <br>
 
         <select name="autobuy" id="autobuy" style="color: black; height: 300px" multiple>
         </select>
@@ -158,11 +167,12 @@
         var container = document.getElementsByClassName("tab-container")[0]
         var buttons = container.getElementsByTagName("button")
         var autobuy = document.getElementById("autobuy")
+        var enabled = document.getElementById("autobuynewenabled")
         var previousButton = ""
         //autobuy.innerHTML = ""
         for (var i = 0; i < buttons.length; ++i) {
             var name = buttons[i].childNodes[0].textContent
-            if (name == "") {
+            if (name == "" || name == "Pillars of mana") {
                 continue
             }
             if (buttons[i].classList.contains("btn-cap")) {
@@ -187,6 +197,9 @@
             var option = document.createElement("option");
             option.text = name;
             autobuy.add(option, prevElementidx+1);
+            if (enabled.checked) {
+                option.setAttribute('selected', 'selected');
+            }
         }
     }
 
@@ -235,8 +248,12 @@
 
             var noAuto = ["A moonlight night"]
 
-            container = document.getElementsByClassName("tab-container")[0]
-            buttons = container.getElementsByTagName("button")
+            container = document.getElementsByClassName("tab-container")
+            if (container.length == 0) {
+                return
+            }
+
+            buttons = container[0].getElementsByTagName("button")
             for (i = 0; i < buttons.length; ++i) {
                 if (buttons[i].classList.contains("btn-off")) {
                     continue;
@@ -256,10 +273,14 @@
         }
     }
 
-    setInterval(function () {
-        var currentTab = getCurrentTab()
+    function autoTab(currentTab) {
 
-        processAuto(currentTab);
+        var currentTime = new Date().getTime()
+
+        if (currentTime - lastMove < 5000) {
+            return
+        }
+
 
         var enabled = document.getElementById("autotabenabled")
 
@@ -270,7 +291,19 @@
             changeTab("Research")
         } else if (currentTab == "Research") {
             changeTab("Build")
+        } else {
+            changeTab("Build")
         }
+    }
+
+    setInterval(function () {
+        var currentTab = getCurrentTab()
+
+        processAuto(currentTab);
+
+        autoTab(currentTab)
+
+
 
     }, 1000);
 
