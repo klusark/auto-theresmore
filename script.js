@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      1
+// @version      2
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -31,6 +31,22 @@
             }
         }
     }
+    function getCurrentSubTab() {
+        var currentTab = getCurrentTab()
+        var textIndex = 0
+        if (currentTab == "Magic") {
+            textIndex = 1
+        }
+
+
+        var buttons = document.getElementById("maintabs-container").children[1].children[0].children[0].children[0].children
+        for (var i = 0; i < buttons.length; ++i) {
+            var button = buttons[i]
+            if (button.ariaSelected == "true") {
+                return button.childNodes[textIndex].textContent
+            }
+        }
+    }
 
     function changeTab(name) {
         var tabs = document.getElementById("main-tabs")
@@ -38,6 +54,22 @@
         for (var i = 0; i < buttons.length; ++i) {
             var button = buttons[i]
             if (button.childNodes[1].textContent == name) {
+                button.click();
+                return;
+            }
+        }
+    }
+
+    function changeSubTab(name) {
+        var currentTab = getCurrentTab()
+        var textIndex = 0
+        if (currentTab == "Magic") {
+            textIndex = 1
+        }
+        var buttons = document.getElementById("maintabs-container").children[1].children[0].children[0].children[0].children
+        for (var i = 0; i < buttons.length; ++i) {
+            var button = buttons[i]
+            if (button.childNodes[textIndex].textContent == name) {
                 button.click();
                 return;
             }
@@ -144,6 +176,9 @@
         <label for="autoresearchenabled">Auto Research</label>
         <input type="checkbox" id="autoresearchenabled" >
         <br>
+        <label for="autoprayerenabled">Auto Prayer</label>
+        <input type="checkbox" id="autoprayerenabled" >
+        <br>
         <label for="autobuyenabled">Auto Building</label>
         <input type="checkbox" id="autobuyenabled" >
         <br>
@@ -206,7 +241,7 @@
     setTimeout(updateBuildings, 50);
     setInterval(updateBuildings, 1000);
 
-    function processAuto(currentTab) {
+    function processAuto(currentTab, currentSubTab) {
         var enabled, autobuy, container, buttons, i, j, name;
         if (currentTab == "Build") {
             enabled = document.getElementById("autobuyenabled")
@@ -246,7 +281,7 @@
                 return
             }
 
-            var noAuto = ["A moonlight night"]
+            var noAuto = ["A moonlight night", "Dragon assault"]
 
             container = document.getElementsByClassName("tab-container")
             if (container.length == 0) {
@@ -270,16 +305,34 @@
                 buttons[i].click();
                 break;
             }
+        } else if (currentTab == "Magic" && currentSubTab == "Prayers") {
+            enabled = document.getElementById("autoprayerenabled")
+            if (!enabled.checked) {
+                return
+            }
+
+            container = document.getElementsByClassName("tab-container")
+            if (container.length == 0) {
+                return
+            }
+
+            buttons = container[0].getElementsByTagName("button")
+            for (i = 0; i < buttons.length; ++i) {
+                if (buttons[i].classList.contains("btn-off")) {
+                    continue;
+                }
+                if (buttons[i].classList.contains("btn-progress")) {
+                    break;
+                }
+                name = buttons[i].childNodes[0].textContent
+
+                buttons[i].click();
+                break;
+            }
         }
     }
 
-    function autoTab(currentTab) {
-
-        var currentTime = new Date().getTime()
-
-        if (currentTime - lastMove < 5000) {
-            return
-        }
+    function autoTab(currentTab, currentSubTab) {
 
 
         var enabled = document.getElementById("autotabenabled")
@@ -290,6 +343,10 @@
         if (currentTab == "Build") {
             changeTab("Research")
         } else if (currentTab == "Research") {
+            changeTab("Magic")
+        } else if (currentTab == "Magic" && currentSubTab != "Prayers") {
+            changeSubTab("Prayers")
+        } else if (currentTab == "Magic" && currentSubTab == "Prayers") {
             changeTab("Build")
         } else {
             changeTab("Build")
@@ -297,11 +354,19 @@
     }
 
     setInterval(function () {
+        var currentTime = new Date().getTime()
+
+        if (currentTime - lastMove < 5000) {
+            return
+        }
+
+
         var currentTab = getCurrentTab()
+        var currentSubTab = getCurrentSubTab()
 
-        processAuto(currentTab);
+        processAuto(currentTab, currentSubTab);
 
-        autoTab(currentTab)
+        autoTab(currentTab, currentSubTab)
 
 
 
