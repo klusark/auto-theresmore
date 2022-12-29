@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      2
+// @version      3
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -91,6 +91,12 @@
             resources[resource].rate = rate
             resources[resource].current = parseInt(current.replaceAll(",",""))
             resources[resource].limit = parseInt(limit.replaceAll(",",""))
+            if (limit.indexOf("K") != -1) {
+                resources[resource].limit *= 1000
+            }
+            if (current.indexOf("K") != -1) {
+                resources[resource].current *= 1000
+            }
         }
     }
 
