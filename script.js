@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      3
+// @version      4
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -120,6 +120,10 @@
 
             if (!(resource in resources)) {
                 continue
+            }
+
+            if (split[0].indexOf("K") != -1) {
+                needed *= 1000
             }
 
             var val = Math.round(needed / resources[resource].rate)
