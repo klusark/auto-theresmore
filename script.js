@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         auto-theresmore
 // @namespace    http://tampermonkey.net/
-// @version      4
+// @version      5
 // @description  try to take over the world!
 // @author       klusark
 // @match        https://www.theresmoregame.com/play/
@@ -55,9 +55,10 @@
             var button = buttons[i]
             if (button.childNodes[1].textContent == name) {
                 button.click();
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     function changeSubTab(name) {
@@ -343,23 +344,33 @@
     }
 
     function autoTab(currentTab, currentSubTab) {
-
-
         var enabled = document.getElementById("autotabenabled")
 
         if (!enabled.checked) {
             return
         }
+        var target = ""
+        var subTarget = ""
         if (currentTab == "Build") {
-            changeTab("Research")
+            target = "Research"
         } else if (currentTab == "Research") {
-            changeTab("Magic")
+            target = "Magic"
         } else if (currentTab == "Magic" && currentSubTab != "Prayers") {
-            changeSubTab("Prayers")
+            subTarget = "Prayers"
         } else if (currentTab == "Magic" && currentSubTab == "Prayers") {
-            changeTab("Build")
+            target = "Build"
         } else {
-            changeTab("Build")
+            target = "Build"
+        }
+
+        if (target != "") {
+            var changed = changeTab(target)
+            if (!changed) {
+                changeTab("Build")
+            }
+        }
+        if (subTarget != "") {
+            changeSubTab(subTarget);
         }
     }
 
